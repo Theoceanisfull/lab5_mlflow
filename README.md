@@ -89,8 +89,9 @@ The DAG runs `src/train.py`, trains a small Iris classifier, and logs results to
 bash scripts/mlflow_server.sh
 ```
 
-MLflow UI → http://localhost:5000  
-You’ll see:
+MLflow UI → http://69.131.215.203:5000
+
+you’ll see:
 - The *iris-logreg* run
 - Parameters, metrics, and logged model
 - You can **register** the model as `iris-classifier` and set its stage to **Production**

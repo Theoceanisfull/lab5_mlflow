@@ -1,23 +1,41 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Choose your Airflow version here (works well on Py3.10–3.12)
+# ------------------------------------------------------------
+# Airflow setup script (pinned to Python 3.11)
+# ------------------------------------------------------------
+
 AIRFLOW_VERSION="2.10.2"
+PYTHON_BIN="python3.11"  # force Python 3.11 interpreter
 
-# Detect python version (major.minor)
-PY_VER=$(python3 -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")')
+# Verify Python 3.11 is installed
+if ! command -v ${PYTHON_BIN} &>/dev/null; then
+  echo "❌ ${PYTHON_BIN} not found. Please install Python 3.11 first."
+  echo "On macOS: brew install python@3.11"
+  exit 1
+fi
 
-# Airflow constraints pin
+# Detect Python version (should be 3.11)
+PY_VER=$(${PYTHON_BIN} -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")')
+
+# Airflow constraints URL for matching Python version
 CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PY_VER}.txt"
 
-# Create venv
-python3 -m venv venv
-source venv/bin/activate
+# ------------------------------------------------------------
+# Create and activate virtual environment (Python 3.11)
+# ------------------------------------------------------------
+${PYTHON_BIN} -m venv .venv
+source .venv/bin/activate
 
+# Upgrade packaging tools
 pip install --upgrade pip wheel setuptools
 
-# Install Airflow with constraints in the SAME venv
+# ------------------------------------------------------------
+# Install Airflow + project dependencies
+# ------------------------------------------------------------
 pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
-
-# Install the rest
 pip install -r requirements.txt
+
+echo "✅ Setup complete."
+echo "Virtual environment: $(python --version)"
+echo "Airflow version: $(airflow version)"
